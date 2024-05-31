@@ -60,6 +60,10 @@ export const signUp = async ({ password, ...userData }: SignUpParams) => {
   try {
     const { account, database } = await createAdminClient();
 
+    console.log('account', account)
+    console.log('database', database)
+    console.log('userData', userData)
+
     newUserAccount = await account.create(
       ID.unique(), 
       email, 
@@ -69,14 +73,16 @@ export const signUp = async ({ password, ...userData }: SignUpParams) => {
 
     if(!newUserAccount) throw new Error('Error creating user')
 
-    const dwollaCustomerUrl = await createDwollaCustomer({
-      ...userData,
-      type: 'personal'
-    })
+    console.log('newUserAccount', newUserAccount)
 
-    if(!dwollaCustomerUrl) throw new Error('Error creating Dwolla customer')
+    // const dwollaCustomerUrl = await createDwollaCustomer({
+    //   ...userData,
+    //   type: 'personal'
+    // })
 
-    const dwollaCustomerId = extractCustomerIdFromUrl(dwollaCustomerUrl);
+    // if(!dwollaCustomerUrl) throw new Error('Error creating Dwolla customer')
+
+    // const dwollaCustomerId = extractCustomerIdFromUrl(dwollaCustomerUrl);
 
     const newUser = await database.createDocument(
       DATABASE_ID!,
@@ -85,8 +91,8 @@ export const signUp = async ({ password, ...userData }: SignUpParams) => {
       {
         ...userData,
         userId: newUserAccount.$id,
-        dwollaCustomerId,
-        dwollaCustomerUrl
+        // dwollaCustomerId,
+        // dwollaCustomerUrl
       }
     )
 
@@ -111,6 +117,7 @@ export async function getLoggedInUser() {
     const result = await account.get();
 
     const user = await getUserInfo({ userId: result.$id})
+    console.log('user', user)
 
     return parseStringify(user);
   } catch (error) {
